@@ -1,3 +1,5 @@
+import tt from './includes/test.js';
+
 var app = {
 	init : ()=>{
 		const t = [
