@@ -3,10 +3,12 @@ const gulp = require('gulp');
 const concat = require('gulp-concat');
 const autoprefixer = require('gulp-autoprefixer');
 const cleanCSS = require('gulp-clean-css');
-const uglify = require('gulp-uglify');
+const uglify = require('gulp-uglify-es').default;
+const babel = require('gulp-babel');
 const del = require('del');
 const browserSync = require('browser-sync').create();
-
+const imagemin = require('gulp-imagemin');
+const webp = require('gulp-webp');
 const sourcemaps = require('gulp-sourcemaps');
 const sass = require('gulp-sass');
 
@@ -31,16 +33,29 @@ function styles() {
 //Task for JS scripts
 function scripts() {
    return gulp.src('./src/js/*.js')
-   //JS minification
-   .pipe(uglify())
-   //Output folder for scripts
-   .pipe(gulp.dest('./dist/js'))
-   .pipe(browserSync.stream());
+   .pipe(sourcemaps.init())
+   .pipe(babel({
+      presets: ['@babel/env']
+   }))
+  .pipe(uglify())
+  .pipe(sourcemaps.write('./'))
+  .pipe(gulp.dest('./dist/js'))
+  .pipe(browserSync.stream());
+      
 }
+
+function images(){
+   return gulp.src('./src/img/*')
+   .pipe(imagemin())
+   .pipe(gulp.dest('./dist/img'))
+   .pipe(webp())
+   .pipe(gulp.dest('./dist/img'))
+   .pipe(browserSync.stream()); 
+}     
 
 //Delete all files from specified folder
 function clean() {
-   return del(['dist/css/*','dist/js/*'])
+   return del(['dist/css/*','dist/js/*','dist/img/*'])
 }
 
 //Watch files
@@ -51,9 +66,10 @@ function watch() {
       }
   });
   //Watch CSS files
-  gulp.watch('./src//**/*.scss', styles);
+  gulp.watch('./src/sass/**/*.scss', styles);
   //Watch JS files
   gulp.watch('./src/js/**/*.js', scripts);
+  gulp.watch('./src/img/*', images);
   //Start synchronization after HTML changing
   gulp.watch("./*.html").on('change', browserSync.reload);
 }
@@ -62,12 +78,14 @@ function watch() {
 gulp.task('styles', styles);
 //Task calling 'scripts' function
 gulp.task('scripts', scripts);
+//Task calling 'images' function
+gulp.task('images', images);
 //Task for cleaning the 'build' folder
 gulp.task('del', clean);
 //Task for changes tracking
 gulp.task('watch', watch);
 //Task for cleaning the 'build' folder and running 'styles' and 'scripts' functions
-gulp.task('build', gulp.series(clean, gulp.parallel(styles,scripts)));
+gulp.task('build', gulp.series(clean, gulp.parallel(styles,scripts,images)));
 //Task launches build and watch task sequentially
 gulp.task('dev', gulp.series('build','watch'));
 //Default task

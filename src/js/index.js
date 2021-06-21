@@ -1,6 +1,10 @@
 var app = {
 	init : ()=>{
-		console.log(1);
+		const t = [
+			{ name : 'Jay', age : 12 }
+		];
+
+		console.log( t.find( i => i.age == 12 ) );
 	}
 }
 
