@@ -10,25 +10,30 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@babel/core": "^7.14.6",
     "@babel/preset-env": "^7.14.5",
     "browser-sync": "^2.26.14",
     "del": "^6.0.0",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^8.0.0",
     "gulp-babel": "^8.0.0",
+    "gulp-better-rollup": "^4.0.1",
     "gulp-clean-css": "^4.3.0",
     "gulp-concat": "^2.6.1",
-    "gulp-eslint": "^6.0.0",
-    "gulp-export": "^2.2.0",
     "gulp-imagemin": "^7.1.0",
     "gulp-sass": "^4.1.0",
     "gulp-sourcemaps": "^3.0.0",
     "gulp-uglify": "^3.0.2",
     "gulp-uglify-es": "^2.0.0",
     "gulp-webp": "^4.0.1",
-    "node-sass": "^6.0.0"
+    "node-sass": "^6.0.0",
+    "rollup": "^2.52.2",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0"
   },
   "dependencies": {
-    "@babel/core": "^7.14.6"
+    "axios": "^0.21.1",
+    "jquery": "^3.6.0"
   }
 }

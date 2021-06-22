@@ -4,15 +4,17 @@ const concat = require('gulp-concat');
 const autoprefixer = require('gulp-autoprefixer');
 const cleanCSS = require('gulp-clean-css');
 const uglify = require('gulp-uglify-es').default;
-const babel = require('gulp-babel');
 const del = require('del');
 const browserSync = require('browser-sync').create();
 const imagemin = require('gulp-imagemin');
 const webp = require('gulp-webp');
 const sourcemaps = require('gulp-sourcemaps');
 const sass = require('gulp-sass');
-const Export = require('gulp-export');
-const ESLlint = require('gulp-eslint');
+
+const rollup = require('gulp-better-rollup');
+const babel = require('rollup-plugin-babel');
+const resolve = require('rollup-plugin-node-resolve');
+const commonjs = require('rollup-plugin-commonjs');
 
 //Task for CSS styles
 function styles() {
@@ -33,57 +35,14 @@ function styles() {
 
 //Task for JS scripts
 function scripts() {
-  //  gulp.src('./src/js/*.js')
-  //  .pipe(sourcemaps.init())
-  //  .pipe(babel({
-  //     presets: ['@babel/env']
-  //  }))
-  // .pipe(uglify())
-  // .pipe(sourcemaps.write('./'))
-  // .pipe(gulp.dest('./dist/js'))
-  // .pipe(browserSync.stream());
-
-  // return gulp.src('./src/js/bundle/*.js')
-  // .pipe(sourcemaps.init())
-  // .pipe(babel({
-  //   presets: ['@babel/env']
-  // }))
-  // .pipe(concat('app.bundle.js'))
-  // .pipe(uglify())
-  // .pipe(sourcemaps.write('./'))
-  // .pipe(gulp.dest('./dist/js'))
-  // .pipe(browserSync.stream());
 
   return gulp.src('./src/js/*.js')
-    .pipe(ESLlint({
-        rules: {
-            'strict': 2
-        },
-        globals: [
-            'jQuery',
-            '$'
-        ],
-        "parserOptions": {
-          "ecmaVersion": 7,
-          "sourceType": "module",
-          "ecmaFeatures": {
-              "jsx": true,
-          }
-        },
-        envs: [
-            'browser'
-        ]
-    }))
-    .pipe(ESLlint.format())
-    .pipe(ESLlint.failAfterError())
-    .pipe(Export({
-        context: './src',
-        exclude: /_/,           // excluded all files with underscore
-        exportType: 'default',  // export as default can be: named, default and global
-    }))
-    .pipe(babel())
-    .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest('./dist'));
+  .pipe(sourcemaps.init())
+  .pipe(rollup({ plugins: [babel(), resolve(), commonjs()] }, 'umd'))
+  .pipe(uglify())
+  .pipe(sourcemaps.write('./'))
+  .pipe(gulp.dest('./dist/js'))
+  .pipe(browserSync.stream());
 }
 
 function images(){

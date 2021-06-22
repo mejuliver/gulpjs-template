@@ -1,4 +1,7 @@
 import tt from './includes/test.js';
+import $ from 'jquery';
+window.$ = $;
+window.jQuery = $;
 
 var app = {
 	init : ()=>{
@@ -7,6 +10,8 @@ var app = {
 		];
 
 		console.log( t.find( i => i.age == 12 ) );
+
+		tt();
 	}
 }
 
