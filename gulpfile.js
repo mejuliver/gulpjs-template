@@ -46,7 +46,7 @@ function scripts() {
 }
 
 function images(){
-   return gulp.src('./src/img/*')
+   return gulp.src('./src/img/**/*')
    .pipe(imagemin())
    .pipe(gulp.dest('./dist/img'))
    .pipe(webp())
@@ -70,7 +70,6 @@ function watch() {
   gulp.watch('./src/sass/**/*.scss', styles);
   //Watch JS files
   gulp.watch('./src/js/**/*.js', scripts);
-  gulp.watch('./src/img/*', images);
   //Start synchronization after HTML changing
   gulp.watch("./*.html").on('change', browserSync.reload);
 }
@@ -80,13 +79,13 @@ gulp.task('styles', styles);
 //Task calling 'scripts' function
 gulp.task('scripts', scripts);
 //Task calling 'images' function
-gulp.task('images', images);
+gulp.task('images', gulp.series(clean, images));
 //Task for cleaning the 'build' folder
 gulp.task('del', clean);
 //Task for changes tracking
 gulp.task('watch', watch);
 //Task for cleaning the 'build' folder and running 'styles' and 'scripts' functions
-gulp.task('build', gulp.series(clean, gulp.parallel(styles,scripts,images)));
+gulp.task('build', gulp.series(clean, gulp.parallel(styles,scripts)));
 //Task launches build and watch task sequentially
 gulp.task('dev', gulp.series('build','watch'));
 //Default task
