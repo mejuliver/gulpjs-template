@@ -4,15 +4,17 @@ const concat = require('gulp-concat');
 const autoprefixer = require('gulp-autoprefixer');
 const cleanCSS = require('gulp-clean-css');
 const uglify = require('gulp-uglify-es').default;
-const babel = require('gulp-babel');
 const del = require('del');
 const browserSync = require('browser-sync').create();
 const imagemin = require('gulp-imagemin');
 const webp = require('gulp-webp');
 const sourcemaps = require('gulp-sourcemaps');
 const sass = require('gulp-sass');
-const Export = require('gulp-export');
-const ESLlint = require('gulp-eslint');
+
+const rollup = require('gulp-better-rollup');
+const babel = require('rollup-plugin-babel');
+const resolve = require('rollup-plugin-node-resolve');
+const commonjs = require('rollup-plugin-commonjs');
 
 //Task for CSS styles
 function styles() {
@@ -33,61 +35,31 @@ function styles() {
 
 //Task for JS scripts
 function scripts() {
-  //  gulp.src('./src/js/*.js')
-  //  .pipe(sourcemaps.init())
-  //  .pipe(babel({
-  //     presets: ['@babel/env']
-  //  }))
-  // .pipe(uglify())
-  // .pipe(sourcemaps.write('./'))
-  // .pipe(gulp.dest('./dist/js'))
-  // .pipe(browserSync.stream());
 
-  // return gulp.src('./src/js/bundle/*.js')
-  // .pipe(sourcemaps.init())
-  // .pipe(babel({
-  //   presets: ['@babel/env']
-  // }))
-  // .pipe(concat('app.bundle.js'))
-  // .pipe(uglify())
-  // .pipe(sourcemaps.write('./'))
-  // .pipe(gulp.dest('./dist/js'))
-  // .pipe(browserSync.stream());
+  return gulp.src('./src/js/es6babel/*.js')
+  .pipe(sourcemaps.init())
+  .pipe(rollup({ plugins: [babel(), resolve(), commonjs()] }, 'umd'))
+  .pipe(uglify())
+  .pipe(sourcemaps.write('./'))
+  .pipe(gulp.dest('./dist/js'))
+  .pipe(browserSync.stream());
 
-  return gulp.src('./src/js/*.js')
-    .pipe(ESLlint({
-        rules: {
-            'strict': 2
-        },
-        globals: [
-            'jQuery',
-            '$'
-        ],
-        "parserOptions": {
-          "ecmaVersion": 7,
-          "sourceType": "module",
-          "ecmaFeatures": {
-              "jsx": true,
-          }
-        },
-        envs: [
-            'browser'
-        ]
-    }))
-    .pipe(ESLlint.format())
-    .pipe(ESLlint.failAfterError())
-    .pipe(Export({
-        context: './src',
-        exclude: /_/,           // excluded all files with underscore
-        exportType: 'default',  // export as default can be: named, default and global
-    }))
-    .pipe(babel())
-    .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest('./dist'));
 }
 
+function scripts2() {
+
+  return gulp.src('./src/js/*.js')
+  .pipe(sourcemaps.init())
+  .pipe(uglify())
+  .pipe(sourcemaps.write('./'))
+  .pipe(gulp.dest('./dist/js'))
+  .pipe(browserSync.stream());
+
+}
+
+
 function images(){
-   return gulp.src('./src/img/*')
+   return gulp.src('./src/img/**/*')
    .pipe(imagemin())
    .pipe(gulp.dest('./dist/img'))
    .pipe(webp())
@@ -111,7 +83,6 @@ function watch() {
   gulp.watch('./src/sass/**/*.scss', styles);
   //Watch JS files
   gulp.watch('./src/js/**/*.js', scripts);
-  gulp.watch('./src/img/*', images);
   //Start synchronization after HTML changing
   gulp.watch("./*.html").on('change', browserSync.reload);
 }
@@ -120,14 +91,16 @@ function watch() {
 gulp.task('styles', styles);
 //Task calling 'scripts' function
 gulp.task('scripts', scripts);
+//Task calling 'scripts' function
+gulp.task('scripts2', scripts2);
 //Task calling 'images' function
-gulp.task('images', images);
+gulp.task('images', gulp.series(clean, images));
 //Task for cleaning the 'build' folder
 gulp.task('del', clean);
 //Task for changes tracking
 gulp.task('watch', watch);
 //Task for cleaning the 'build' folder and running 'styles' and 'scripts' functions
-gulp.task('build', gulp.series(clean, gulp.parallel(styles,scripts,images)));
+gulp.task('build', gulp.series(clean, gulp.parallel(styles,scripts,scripts2)));
 //Task launches build and watch task sequentially
 gulp.task('dev', gulp.series('build','watch'));
 //Default task
