@@ -36,14 +36,27 @@ function styles() {
 //Task for JS scripts
 function scripts() {
 
-  return gulp.src('./src/js/*.js')
+  return gulp.src('./src/js/es6babel/*.js')
   .pipe(sourcemaps.init())
   .pipe(rollup({ plugins: [babel(), resolve(), commonjs()] }, 'umd'))
   .pipe(uglify())
   .pipe(sourcemaps.write('./'))
   .pipe(gulp.dest('./dist/js'))
   .pipe(browserSync.stream());
+
 }
+
+function scripts2() {
+
+  return gulp.src('./src/js/*.js')
+  .pipe(sourcemaps.init())
+  .pipe(uglify())
+  .pipe(sourcemaps.write('./'))
+  .pipe(gulp.dest('./dist/js'))
+  .pipe(browserSync.stream());
+
+}
+
 
 function images(){
    return gulp.src('./src/img/**/*')
@@ -56,7 +69,10 @@ function images(){
 
 //Delete all files from specified folder
 function clean() {
-   return del(['dist/css/*','dist/js/*','dist/img/*'])
+   return del(['dist/css/*','dist/js/*'])
+}
+function clean2() {
+   return del(['dist/img/*']);
 }
 
 //Watch files
@@ -78,14 +94,16 @@ function watch() {
 gulp.task('styles', styles);
 //Task calling 'scripts' function
 gulp.task('scripts', scripts);
+//Task calling 'scripts' function
+gulp.task('scripts2', scripts2);
 //Task calling 'images' function
-gulp.task('images', gulp.series(clean, images));
+gulp.task('images', gulp.series(clean2, images));
 //Task for cleaning the 'build' folder
-gulp.task('del', clean);
+gulp.task('del', gulp.series(clean, clean2));
 //Task for changes tracking
 gulp.task('watch', watch);
 //Task for cleaning the 'build' folder and running 'styles' and 'scripts' functions
-gulp.task('build', gulp.series(clean, gulp.parallel(styles,scripts)));
+gulp.task('build', gulp.series(clean, gulp.parallel(styles,scripts,scripts2)));
 //Task launches build and watch task sequentially
 gulp.task('dev', gulp.series('build','watch'));
 //Default task
