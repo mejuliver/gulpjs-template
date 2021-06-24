@@ -12,3 +12,6 @@ npm install -g gulp-cli
     
 ## BUILD
 ```gulp build``` or ```gulp```
+
+## BUILD IMAGES
+```gulp images```
