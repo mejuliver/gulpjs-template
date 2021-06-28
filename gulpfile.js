@@ -85,7 +85,8 @@ function watch() {
   //Watch CSS files
   gulp.watch('./src/sass/**/*.scss', styles);
   //Watch JS files
-  gulp.watch('./src/js/**/*.js', scripts);
+  gulp.watch('./src/js/es6babel/*.js', scripts);
+  gulp.watch('./src/js/*.js', scripts2);
   //Start synchronization after HTML changing
   gulp.watch("./*.html").on('change', browserSync.reload);
 }
