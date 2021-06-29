@@ -9,7 +9,7 @@ const browserSync = require('browser-sync').create();
 const imagemin = require('gulp-imagemin');
 const webp = require('gulp-webp');
 const sourcemaps = require('gulp-sourcemaps');
-const sass = require('gulp-sass');
+const sass = require('gulp-sass')(require('sass'));
 
 const rollup = require('gulp-better-rollup');
 const babel = require('rollup-plugin-babel');
@@ -22,7 +22,7 @@ const imageminPngcrush = require('imagemin-pngcrush');
 function styles() {
    return gulp.src('./src/sass/**/*.scss')
    .pipe(sourcemaps.init())
-   .pipe(sass())
+   .pipe(sass)
    //Add prefixes
    .pipe(autoprefixer())
    //CSS minification
