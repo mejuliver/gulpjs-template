@@ -26,8 +26,10 @@
     "gulp-uglify": "^3.0.2",
     "gulp-uglify-es": "^2.0.0",
     "gulp-webp": "^4.0.1",
+    "imagemin-mozjpeg": "^8.0.0",
+    "imagemin-pngcrush": "^7.0.0",
     "node-sass": "^6.0.0",
-    "rollup": "^2.52.2",
+    "rollup": "^2.52.3",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0"

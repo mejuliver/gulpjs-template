@@ -15,6 +15,8 @@ const rollup = require('gulp-better-rollup');
 const babel = require('rollup-plugin-babel');
 const resolve = require('rollup-plugin-node-resolve');
 const commonjs = require('rollup-plugin-commonjs');
+const imageminMozjpeg = require('imagemin-mozjpeg');
+const imageminPngcrush = require('imagemin-pngcrush');
 
 //Task for CSS styles
 function styles() {
@@ -60,7 +62,19 @@ function scripts2() {
 
 function images(){
    return gulp.src('./src/img/**/*')
-   .pipe(imagemin())
+   .pipe(imagemin({
+      optimizationLevel: 7,
+      progressive: true,
+      interlaced: true,
+      svgoPlugins: [
+         { removeTitle: true },
+         { removeDesc: { removeAny: true } },
+      ],
+      use: [
+         imageminMozjpeg({ quality: 80 }),
+         imageminPngcrush({ reduce: false }),
+      ]
+   }))
    .pipe(gulp.dest('./dist/img'))
    .pipe(webp())
    .pipe(gulp.dest('./dist/img'))
