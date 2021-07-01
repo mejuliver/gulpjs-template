@@ -89,14 +89,14 @@ function clean2() {
 }
 
 //Watch files
-async function watch() {
+function watch() {
   //Watch CSS files
-  await gulp.watch('./src/sass/**/*.scss', styles);
+  gulp.watch('./src/sass/**/*.scss', styles);
   //Watch JS files
-  await gulp.watch('./src/js/es6babel/*.js', scripts);
-  await gulp.watch('./src/js/*.js', scripts2);
+  gulp.watch('./src/js/es6babel/*.js', scripts);
+  gulp.watch('./src/js/*.js', scripts2);
   //Start synchronization after HTML changing
-  await gulp.watch("./*.html");
+  gulp.watch("./*.html");
 
   return;
 }
@@ -130,10 +130,9 @@ gulp.task('images', gulp.series(clean2, images));
 gulp.task('del', gulp.series(clean, clean2));
 //Task for changes tracking
 gulp.task('watch', watch);
-gulp.task('watch-html', watchAll);
+gulp.task('watch-all', watchAll);
 //Task for cleaning the 'build' folder and running 'styles' and 'scripts' functions
 gulp.task('build', gulp.series(clean, gulp.parallel(styles,scripts,scripts2)));
 //Task launches build and watch task sequentially
-gulp.task('dev', gulp.series('build','watch-html'));
 //Default task
 gulp.task('default', gulp.series('build','watch'));
