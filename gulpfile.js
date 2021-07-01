@@ -59,7 +59,6 @@ function scripts2() {
 
 }
 
-
 function images(){
    return gulp.src('./src/img/**/*')
    .pipe(imagemin({
@@ -90,7 +89,19 @@ function clean2() {
 }
 
 //Watch files
-function watch() {
+async function watch() {
+  //Watch CSS files
+  await gulp.watch('./src/sass/**/*.scss', styles);
+  //Watch JS files
+  await gulp.watch('./src/js/es6babel/*.js', scripts);
+  await gulp.watch('./src/js/*.js', scripts2);
+  //Start synchronization after HTML changing
+  await gulp.watch("./*.html");
+
+  return;
+}
+
+function watchAll() {
    browserSync.init({
       server: {
           baseDir: "./"
@@ -103,6 +114,8 @@ function watch() {
   gulp.watch('./src/js/*.js', scripts2);
   //Start synchronization after HTML changing
   gulp.watch("./*.html").on('change', browserSync.reload);
+
+  return;
 }
 
 //Task calling 'styles' function
@@ -117,9 +130,10 @@ gulp.task('images', gulp.series(clean2, images));
 gulp.task('del', gulp.series(clean, clean2));
 //Task for changes tracking
 gulp.task('watch', watch);
+gulp.task('watch-html', watchAll);
 //Task for cleaning the 'build' folder and running 'styles' and 'scripts' functions
 gulp.task('build', gulp.series(clean, gulp.parallel(styles,scripts,scripts2)));
 //Task launches build and watch task sequentially
-gulp.task('dev', gulp.series('build','watch'));
+gulp.task('dev', gulp.series('build','watch-html'));
 //Default task
 gulp.task('default', gulp.series('build','watch'));
