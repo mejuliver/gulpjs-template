@@ -101,21 +101,25 @@ function watch() {
   return;
 }
 
-function watchAll() {
+function watchStyles(){
+   return gulp.watch('./src/sass/**/*.scss', styles);
+}
+
+function watchES6(){
+   return  gulp.watch('./src/js/es6babel/*.js', scripts);
+}
+
+function watchScript(){
+   return gulp.watch('./src/js/*.js', scripts2);
+}
+
+function watchHTML(){
    browserSync.init({
       server: {
           baseDir: "./"
       }
   });
-  //Watch CSS files
-  gulp.watch('./src/sass/**/*.scss', styles);
-  //Watch JS files
-  gulp.watch('./src/js/es6babel/*.js', scripts);
-  gulp.watch('./src/js/*.js', scripts2);
-  //Start synchronization after HTML changing
-  gulp.watch("./*.html").on('change', browserSync.reload);
-
-  return;
+   return gulp.watch("./*.html").on('change', browserSync.reload);
 }
 
 //Task calling 'styles' function
@@ -130,7 +134,7 @@ gulp.task('images', gulp.series(clean2, images));
 gulp.task('del', gulp.series(clean, clean2));
 //Task for changes tracking
 gulp.task('watch', watch);
-gulp.task('watch-all', watchAll);
+gulp.task('watch-all', gulp.parallel(watchStyles,watchScript,watchES6,watchHTML));
 //Task for cleaning the 'build' folder and running 'styles' and 'scripts' functions
 gulp.task('build', gulp.series(clean, gulp.parallel(styles,scripts,scripts2)));
 //Task launches build and watch task sequentially
