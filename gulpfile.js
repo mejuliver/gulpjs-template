@@ -1,5 +1,5 @@
 //Connect the gulp modules
-const gulp = require('gulp');
+const { src, parallel, task, dest, watch, series } = require('gulp');
 const concat = require('gulp-concat');
 const autoprefixer = require('gulp-autoprefixer');
 const cleanCSS = require('gulp-clean-css');
@@ -20,7 +20,7 @@ const imageminPngcrush = require('imagemin-pngcrush');
 
 //Task for CSS styles
 function styles() {
-   return gulp.src('./src/sass/**/*.scss')
+   return src('./src/sass/**/*.scss')
    .pipe(sourcemaps.init())
    .pipe(sass)
    //Add prefixes
@@ -31,32 +31,32 @@ function styles() {
    }))
    .pipe(sourcemaps.write('./'))
    //Output folder for styles
-   .pipe(gulp.dest('./dist/css'))
+   .pipe(dest('./dist/css'))
    .pipe(browserSync.stream());
 }
 
 //Task for JS scripts
 function scriptsES6() {
-   return gulp.src('./src/js/es6babel/*.js')
+   return src('./src/js/es6babel/*.js')
   .pipe(sourcemaps.init())
   .pipe(rollup({ plugins: [babel(), resolve(), commonjs()] }, 'umd'))
   .pipe(uglify())
   .pipe(sourcemaps.write('./'))
-  .pipe(gulp.dest('./dist/js'))
+  .pipe(dest('./dist/js'))
   .pipe(browserSync.stream());
 }
 
 function scripts(){
-   return gulp.src('./src/js/*.js')
+   return src('./src/js/*.js')
   .pipe(sourcemaps.init())
   .pipe(uglify())
   .pipe(sourcemaps.write('./'))
-  .pipe(gulp.dest('./dist/js'))
+  .pipe(dest('./dist/js'))
   .pipe(browserSync.stream());
 }
 
 function images(){
-   return gulp.src('./src/img/**/*')
+   return src('./src/img/**/*')
    .pipe(imagemin({
       optimizationLevel: 7,
       progressive: true,
@@ -70,9 +70,9 @@ function images(){
          imageminPngcrush({ reduce: false }),
       ]
    }))
-   .pipe(gulp.dest('./dist/img'))
+   .pipe(dest('./dist/img'))
    .pipe(webp())
-   .pipe(gulp.dest('./dist/img'));
+   .pipe(dest('./dist/img'));
 }     
 
 //Delete all files from specified folder
@@ -84,39 +84,49 @@ function cleanImgs() {
 }
 
 //Watch files
-function watch() {
+function watchFiles() {
   //Watch CSS files
-  gulp.watch('./src/sass/**/*.scss', styles);
+  watch('./src/sass/**/*.scss', styles);
   //Watch JS files
-  gulp.watch('./src/js/es6babel/*.js', scriptsES6);
-  gulp.watch('./src/js/*.js', scripts);
+  watch('./src/js/es6babel/*.js', scriptsES6);
+  watch('./src/js/*.js', scripts);
 }
 
-function watchAll(){
+function watchHTML(){
    browserSync.init({
       server: {
           baseDir: "./"
       }
-  });
-   gulp.watch('./src/sass/**/*.scss', styles);
-   gulp.watch('./src/js/es6babel/*.js', scriptsES6);
-   gulp.watch('./src/js/*.js', scripts);
-   gulp.watch("./*.html").on('change', browserSync.reload);
+   });
+   
+   return watch("./*.html").on('change', browserSync.reload);
+}
+
+function watchStyles(){
+   return watch('./src/sass/**/*.scss', styles);
+}
+
+function watchScripts(){
+   return watch('./src/js/*.js', scripts);
+}
+
+function watchScriptsES6(){
+   return watch('./src/js/es6babel/*.js', scriptsES6);
 }
 
 //Task calling 'styles' function
-gulp.task('styles', styles);
+task('styles', styles);
 //Task calling 'scripts' function
-gulp.task('scripts', gulp.series(scripts,scriptsES6)) ;
+task('scripts', series(scripts,scriptsES6)) ;
 //Task calling 'images' function
-gulp.task('images', gulp.series(cleanImgs, images));
+task('images', series(cleanImgs, images));
 //Task for cleaning the 'build' folder
-gulp.task('del', gulp.series(clean, cleanImgs));
+task('del', series(clean, cleanImgs));
 //Task for changes tracking
-gulp.task('watch', watch);
-gulp.task('watch-all', watchAll);
+task('watch', parallel(watchStyles,watchScripts,watchScriptsES6));
+task('watch-all', parallel(watchStyles,watchScripts,watchScriptsES6,watchHTML));
 //Task for cleaning the 'build' folder and running 'styles' and 'scripts' functions
-gulp.task('build', gulp.series(clean, gulp.parallel(styles,scripts,scriptsES6)));
+task('build', series(clean, parallel(styles,scripts,scriptsES6)));
 //Task launches build and watch task sequentially
 //Default task
-gulp.task('default', gulp.series('build','watch'));
+task('default', series('build','watch-all'));
