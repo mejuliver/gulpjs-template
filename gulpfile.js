@@ -36,27 +36,23 @@ function styles() {
 }
 
 //Task for JS scripts
-function scripts() {
-
-  return gulp.src('./src/js/es6babel/*.js')
+function scriptsES6() {
+   return gulp.src('./src/js/es6babel/*.js')
   .pipe(sourcemaps.init())
   .pipe(rollup({ plugins: [babel(), resolve(), commonjs()] }, 'umd'))
   .pipe(uglify())
   .pipe(sourcemaps.write('./'))
   .pipe(gulp.dest('./dist/js'))
   .pipe(browserSync.stream());
-
 }
 
-function scripts2() {
-
-  return gulp.src('./src/js/*.js')
+function scripts(){
+   return gulp.src('./src/js/*.js')
   .pipe(sourcemaps.init())
   .pipe(uglify())
   .pipe(sourcemaps.write('./'))
   .pipe(gulp.dest('./dist/js'))
   .pipe(browserSync.stream());
-
 }
 
 function images(){
@@ -76,15 +72,14 @@ function images(){
    }))
    .pipe(gulp.dest('./dist/img'))
    .pipe(webp())
-   .pipe(gulp.dest('./dist/img'))
-   .pipe(browserSync.stream()); 
+   .pipe(gulp.dest('./dist/img'));
 }     
 
 //Delete all files from specified folder
 function clean() {
    return del(['dist/css/*','dist/js/*'])
 }
-function clean2() {
+function cleanImgs() {
    return del(['dist/img/*']);
 }
 
@@ -93,50 +88,35 @@ function watch() {
   //Watch CSS files
   gulp.watch('./src/sass/**/*.scss', styles);
   //Watch JS files
-  gulp.watch('./src/js/es6babel/*.js', scripts);
-  gulp.watch('./src/js/*.js', scripts2);
-  //Start synchronization after HTML changing
-  gulp.watch("./*.html");
-
-  return;
+  gulp.watch('./src/js/es6babel/*.js', scriptsES6);
+  gulp.watch('./src/js/*.js', scripts);
 }
 
-function watchStyles(){
-   return gulp.watch('./src/sass/**/*.scss', styles);
-}
-
-function watchES6(){
-   return  gulp.watch('./src/js/es6babel/*.js', scripts);
-}
-
-function watchScript(){
-   return gulp.watch('./src/js/*.js', scripts2);
-}
-
-function watchHTML(){
+function watchAll(){
    browserSync.init({
       server: {
           baseDir: "./"
       }
   });
-   return gulp.watch("./*.html").on('change', browserSync.reload);
+   gulp.watch('./src/sass/**/*.scss', styles);
+   gulp.watch('./src/js/es6babel/*.js', scriptsES6);
+   gulp.watch('./src/js/*.js', scripts);
+   gulp.watch("./*.html").on('change', browserSync.reload);
 }
 
 //Task calling 'styles' function
 gulp.task('styles', styles);
 //Task calling 'scripts' function
-gulp.task('scripts', scripts);
-//Task calling 'scripts' function
-gulp.task('scripts2', scripts2);
+gulp.task('scripts', gulp.series(scripts,scriptsES6)) ;
 //Task calling 'images' function
-gulp.task('images', gulp.series(clean2, images));
+gulp.task('images', gulp.series(cleanImgs, images));
 //Task for cleaning the 'build' folder
-gulp.task('del', gulp.series(clean, clean2));
+gulp.task('del', gulp.series(clean, cleanImgs));
 //Task for changes tracking
 gulp.task('watch', watch);
-gulp.task('watch-all', gulp.parallel(watchStyles,watchScript,watchES6,watchHTML));
+gulp.task('watch-all', watchAll);
 //Task for cleaning the 'build' folder and running 'styles' and 'scripts' functions
-gulp.task('build', gulp.series(clean, gulp.parallel(styles,scripts,scripts2)));
+gulp.task('build', gulp.series(clean, gulp.parallel(styles,scripts,scriptsES6)));
 //Task launches build and watch task sequentially
 //Default task
 gulp.task('default', gulp.series('build','watch'));
